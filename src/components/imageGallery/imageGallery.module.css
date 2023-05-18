@@ -1,0 +1,16 @@
+.sectionGallery {
+    max-width: calc(100vw - 48px);
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.imageGallery {
+    display: grid;
+    min-height: calc(100vh - 128px);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-gap: 12px;
+    padding: 10px 0;
+    list-style: none;
+}
