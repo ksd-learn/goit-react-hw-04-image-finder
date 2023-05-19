@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ImageGalleryItem } from '../imageGalleryItem/ImageGalleryItem';
 import { Button } from '../button/Button';
 import { Modal } from '../modal/Modal';
@@ -8,130 +8,114 @@ import { queryApi } from '../../api/queryApi';
 import css from './imageGallery.module.css';
 import PropTypes from 'prop-types';
 
-export class ImageGallery extends Component {
+export const ImageGallery = ({nameSearch}) => {
 
-    state = {
-        data: [],
-        page: 1,
-        status: 'start',                            // "start", "pending", "resolved", "error"
-        idImgModal: 0,
-        showModal: false,
-        error: 'null'
+    const [data, setData] = useState([]);
+    const [page, setPage] = useState(1);
+    const [status, setStatus] = useState('start');       // "start", "pending", "resolved", "error"
+    const [idImgModal, setIdImgModal] = useState(0);
+    const [showModal, setShowModal] = useState(false);
+    const [error, setError] = useState('null');
+
+    const refNameSearch = useRef(nameSearch);
+                                                        // действие кнопки "Load more"
+    const handlBtnLoadMore = () => {
+        setStatus('pending');
+        setPage(page + 1)
     };
-                                                    // добавление полученной страницы в state
-    addPage = (dataPage) => {
-        this.setState(
-            (prevstate) => {
-                if (dataPage.length > 0) {
-                    if (this.state.page === 1) {
-                        return {data: dataPage}
-                    } else {
-                        const newData = prevstate.data.concat(dataPage);
-                        return { data: newData}
-                    }
-                }
+                                                        // управление модальным окном (откр/закр)
+    const switchModal = (id) => {
+        setIdImgModal(id);
+        setShowModal((prevState) => !prevState)
+    };
+                                                //действия с запросами
+    useEffect(() => {
+        if (nameSearch === '') return;
+                                                        // добавление полученной страницы в state
+        const addPage = (dataPage) => {
+            if (dataPage.length > 0) {
+                setData((prevstate) => [...prevstate, ...dataPage])
             }
-        )
-    };
-                                                    // формирование шаблона массива state.data
-    patternPage = (dataPage) => {
-        return (
-            dataPage.map(item => {
-                return {
-                    id: item.id,
-                    webformatURL: item.webformatURL,
-                    largeImageURL: item.largeImageURL,
-                    user: item.user
-                }
-            })
-        )
-    };
-                                        // подготовка и запись в state данных, полученных с сервера API 
-    dataQueryApi = (page) => {
-        let queryValue = this.props.nameSearch;
-        let url = apiPixabay(queryValue, page);     //html  запроса
+        };
+                                                        // формирование шаблона массива state.data
+        const patternPage = (dataPage) => {
+            return (
+                dataPage.map(item => {
+                    return {
+                        id: item.id,
+                        webformatURL: item.webformatURL,
+                        largeImageURL: item.largeImageURL,
+                        user: item.user
+                    }
+                })
+            )
+        };
+                                            // подготовка и запись в state данных, полученных с сервера API 
+        const dataQueryApi = (page) => {
 
-        queryApi(url)                               //запрос > анализ данных > запись в state
-            .then(dataPage => {
-                if (dataPage.length > 0) {
-                    return this.patternPage(dataPage)
-                } else {
-                    return Promise.reject(new Error("Поиск завершен"))
-                }
-            })
-            .then((dataPattern => this.addPage(dataPattern)))
-            .catch(error => this.setState({ error }))
-            .finally(() => this.setState({ status: 'resolved' }))
-    };
-                                                    // действие кнопки "Load more"
-    handlBtnLoadMore = () => {
-        this.setState((prevState) => {
-            return { status: 'pending', page: prevState.page + 1 }
-        })
-    };
-    
-                                                    // управление модальным окном (откр/закр)
-    switchModal = (id) => {
-        this.setState(({ showModal }) => (
-            { idImgModal: id, showModal: !showModal }
-        ))
-    };
-                                                    // действие после render
-    componentDidUpdate(prevProps, prevState) {
-        let queryValue = this.props.nameSearch;
-        let {page, error} = this.state;
+            let url = apiPixabay(nameSearch, page);         //html  запроса
+            
+            queryApi(url)                                   //запрос > обработка данных > запись в state
+                .then(dataPage => {
+                    if (dataPage.length > 0) {
+                        return patternPage(dataPage)
+                    } else {
+                        return Promise.reject(new Error("Поиск завершен"))
+                    }
+                })
+                .then(dataPattern => addPage(dataPattern))
+                .catch(error => setError(error))
+                .finally(() => setStatus('resolved'))
+        };
 
-        if (prevProps.nameSearch !== queryValue) {          //новая тема
-            this.setState({
-                    data: [],
-                    status: 'pending',
-                    page: 1,
-                    showModal: false,
-                    error: 'null'
-            });
-            this.dataQueryApi(1);
+        if (refNameSearch.current !== nameSearch) {         //новый поиск
+            refNameSearch.current = nameSearch;
+            setError('null');
+            setShowModal(false);
+            setData([]);
+            setPage(1);
+            setStatus('pending');
+            dataQueryApi(1);
+        } else {
+            if (page > 1) {                                 //запрос следующей страницы
+                dataQueryApi(page)
+            }
+        } 
+
+    }, [nameSearch, page]);
+
+    useEffect(() => {
+        if (error.message === "Поиск завершен") {
+            setStatus('start')
         }
+    }, [error])
 
-        if (prevState.page !== page && page > 1) {  //следующая страница
-            this.dataQueryApi(page)
-        }
+    const dataPhoto = data.find(item => item.id === idImgModal);
 
-        if ( prevState.error!== error && error.message === "Поиск завершен") {
-            this.setState({
-                    status: 'start',
-            });
-        }
-    };
-    
-    render() {
-
-        let { data, status, idImgModal, showModal, error } = this.state;
-        const dataPhoto = data.find(item => item.id === idImgModal);
-
-        return (
-            <section className={css.sectionGallery}>
-                {data.length > 0 &&
-                    <ul className={css.imageGallery}>
-                        {data.map((item) => {
+    return (
+        <section className={css.sectionGallery}>
+            {data.length > 0 &&
+                <ul className={css.imageGallery}>
+                    {data.map((item) => {
                         return (
-                            <ImageGalleryItem key={item.id} item={item} onOpen={this.switchModal} />
-                        )})}
-                    </ul>}                
+                            <ImageGalleryItem key={item.id} item={item} onOpen={switchModal} />
+                        )
+                    })}
+                </ul>}                
                 
-                {(data.length === 0 && error.message === "Поиск завершен") &&
-                    <p>"Поиск завершен"</p>}
+            {(data.length === 0 && error.message === "Поиск завершен") &&
+                <p>"Поиск завершен"</p>}
 
-                {status === 'resolved' && 
-                    <Button onClick={this.handlBtnLoadMore} />}
+            {status=== 'resolved'  && 
+                <Button onClick={handlBtnLoadMore} />}
 
-                {status === 'pending' && 
-                    <Loader />}
+            {status === 'pending' && 
+                <Loader />}
 
-                {showModal && 
-                    <Modal dataPhoto={dataPhoto} onClose={this.switchModal} />}
-            </section>
-        )
-    }
+            {showModal && 
+                <Modal dataPhoto={dataPhoto} onClose={switchModal} />}
+        </section>
+    )
 }
 
 ImageGallery.propTypes = {

@@ -1,46 +1,41 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import css from './Modal.module.css'
 import PropTypes from 'prop-types';
 
 const modalRoot = document.querySelector('#modal-root');
 
-export class Modal extends Component {
+export const Modal = ({dataPhoto, onClose}) => {
 
-    handleKeyDown = event => {
-        if (event.code === 'Escape') {
-            this.props.onClose(this.props.dataPhoto.id)
-        }
-    }
+    let { largeImageURL, user } = dataPhoto;
 
-    handleBackdropDown = event => {
+    const handleBackdropDown = event => {
         if (event.currentTarget === event.target) {
-            this.props.onClose(this.props.dataPhoto.id)
+            onClose(dataPhoto.id)
         }
-    }
+    };
 
-    componentDidMount() {
-        window.addEventListener('keydown', this.handleKeyDown)
-    }
+    useEffect(() => {
+        const handleKeyDown = event => {
+            if (event.code === 'Escape') {
+                onClose(dataPhoto.id)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [onClose, dataPhoto]);
 
-    componentWillUnmount() {
-        window.removeEventListener('keydown', this.handleKeyDown)
-    }
-
-    render() {
-
-        let { largeImageURL, user } = this.props.dataPhoto;
-
-        return createPortal(
-            <div className={css.overlay} onClick={this.handleBackdropDown}>
-                <div className={css.modal}>
-                    <img src={largeImageURL} alt={user} />
-                </div>
-            </div>,
-            modalRoot
-        );
-    }
-
+    return createPortal(
+        <div className={css.overlay} onClick={handleBackdropDown}>
+            <div className={css.modal}>
+                <img src={largeImageURL} alt={user} />
+            </div>
+        </div>,
+        modalRoot
+    );
 }
 
 Modal.propTypes = {

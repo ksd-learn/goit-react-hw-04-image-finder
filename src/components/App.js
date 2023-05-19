@@ -1,26 +1,21 @@
-import { Component } from "react";
+import { useState } from "react";
 import { Searchbar } from './searchbar/Searchbar';
 import { ImageGallery } from './imageGallery/ImageGallery';
 
-export class App extends Component {
+export const App = () => {
 
-  state = {
-    nameSearch: '',
-  };
-
+  const [nameSearch, setNameSearch] = useState('');
   
-  addNameSearch = (name) => {
-    if (name !== this.state.nameSearch) {
-      this.setState({ nameSearch: name })
+  const addNameSearch = (name) => {
+    if (name !== nameSearch) {
+      setNameSearch(name)
     }
   };
-  
-  render() {
-    return (
-      <div>
-        <Searchbar addNameSearch={this.addNameSearch} />
-        <ImageGallery nameSearch={this.state.nameSearch} />
-      </div>
-    );
-  }
+
+  return (
+    <div>
+      <Searchbar addNameSearch={addNameSearch} />
+      <ImageGallery nameSearch={nameSearch} />
+    </div>
+  );
 }

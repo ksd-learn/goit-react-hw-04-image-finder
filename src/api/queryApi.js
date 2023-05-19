@@ -1,6 +1,6 @@
 //Запрос API
-const queryApi = async (url) => {
-    const dataPage = await fetch(url)
+const queryApi = (url) => {
+    const dataPage = fetch(url)
         .then(response => response.json())
         .then(objPhotos => objPhotos.hits )
         .catch(error => console.log(error))
