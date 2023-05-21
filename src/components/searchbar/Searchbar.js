@@ -3,7 +3,7 @@ import css from './Searchbar.module.css';
 import { AiOutlineSearch } from 'react-icons/ai';
 import PropTypes from 'prop-types';
 
-export const Searchbar = ({addNameSearch}) => {
+export const Searchbar = ({addQueryValue}) => {
 
   const [name, setName] = useState('');
 
@@ -14,7 +14,7 @@ export const Searchbar = ({addNameSearch}) => {
   const handlSubmit = (event) => {
     event.preventDefault();
     if (name) {
-      addNameSearch(name);
+      addQueryValue(name);
       setName('')
     }
   };
@@ -41,5 +41,5 @@ export const Searchbar = ({addNameSearch}) => {
 }
 
 Searchbar.propTypes = {
-  addNameSearch: PropTypes.func.isRequired,
+  addQueryValue: PropTypes.func.isRequired,
 };

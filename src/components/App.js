@@ -4,18 +4,18 @@ import { ImageGallery } from './imageGallery/ImageGallery';
 
 export const App = () => {
 
-  const [nameSearch, setNameSearch] = useState('');
+  const [queryValue, setqueryValue] = useState('');
   
-  const addNameSearch = (name) => {
-    if (name !== nameSearch) {
-      setNameSearch(name)
+  const addQueryValue = (name) => {
+    if (name !== queryValue) {
+      setqueryValue(name)
     }
   };
 
   return (
     <div>
-      <Searchbar addNameSearch={addNameSearch} />
-      <ImageGallery nameSearch={nameSearch} />
+      <Searchbar addQueryValue={addQueryValue} />
+      <ImageGallery queryValue={queryValue} />
     </div>
   );
 }

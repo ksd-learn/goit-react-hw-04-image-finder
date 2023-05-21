@@ -1,10 +1,18 @@
 //Запрос API
-const queryApi = (url) => {
-    const dataPage = fetch(url)
-        .then(response => response.json())
-        .then(objPhotos => objPhotos.hits )
-        .catch(error => console.log(error))
-    return dataPage
-}
+export const queryApi = (queryValue, page) => {
+                                                // сервис изображений Pixabay
+    const API_KEY = '34823710-80207717ed108df05ffec9219';
+    const queryParams = `?key=${API_KEY}&q=${queryValue}&per_page=12&page=${page}&image_type=photo&orientation=horizontal&safesearch=true`;
+    const url = `https://pixabay.com/api/${queryParams}`
 
-export {queryApi}
+    return (
+        fetch(url)
+            .then(response => {
+                if (response) {
+                    return  response.json()
+                }
+                })
+//            .then(objPhotos => objPhotos.hits )
+            .catch(error => console.log(error))
+    )
+}
