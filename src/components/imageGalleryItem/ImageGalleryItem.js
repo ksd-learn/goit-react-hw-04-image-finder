@@ -1,10 +1,10 @@
 import css from './ImageGalleryItem.module.css'
 import PropTypes from 'prop-types';
 
-export const ImageGalleryItem = ({item:{id, webformatURL, user}, onOpen}) => {
+export const ImageGalleryItem = ({item:{id, webformatURL, user}, switchModal}) => {
     return (
 
-        < li className={css.imageGalleryItem} onClick={() => {onOpen(id)}}>
+        < li className={css.imageGalleryItem} onClick={() => {switchModal(id)}}>
             <img src={webformatURL} alt={user} />
         </li>
 
@@ -20,5 +20,5 @@ ImageGalleryItem.propTypes = {
             webformatURL: PropTypes.string.isRequired,
             user: PropTypes.string.isRequired
         }),
-    onOpen: PropTypes.func.isRequired,
+    switchModal: PropTypes.func.isRequired,
 };
