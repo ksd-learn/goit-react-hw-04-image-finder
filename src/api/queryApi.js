@@ -10,9 +10,10 @@ export const queryApi = (queryValue, page) => {
             .then(response => {
                 if (response) {
                     return  response.json()
+                } else {
+                    return Promise.reject(new Error("Данных нет!"))
                 }
                 })
-//            .then(objPhotos => objPhotos.hits )
             .catch(error => console.log(error))
     )
 }

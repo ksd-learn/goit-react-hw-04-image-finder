@@ -5,20 +5,20 @@ import PropTypes from 'prop-types';
 
 const modalRoot = document.querySelector('#modal-root');
 
-export const Modal = ({dataPhoto, onClose}) => {
+export const Modal = ({imgModal, onClose}) => {
 
-    let { largeImageURL, user } = dataPhoto;
+    const { largeImageURL, user } = imgModal;
 
     const handleBackdropDown = event => {
         if (event.currentTarget === event.target) {
-            onClose(dataPhoto.id)
+            onClose()
         }
     };
 
     useEffect(() => {
         const handleKeyDown = event => {
             if (event.code === 'Escape') {
-                onClose(dataPhoto.id)
+                onClose()
             }
         }
         window.addEventListener('keydown', handleKeyDown)
@@ -26,7 +26,7 @@ export const Modal = ({dataPhoto, onClose}) => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [onClose, dataPhoto]);
+    }, [onClose]);
 
     return createPortal(
         <div className={css.overlay} onClick={handleBackdropDown}>
@@ -39,12 +39,8 @@ export const Modal = ({dataPhoto, onClose}) => {
 }
 
 Modal.propTypes = {
-    dataPhoto: PropTypes.shape({
-        id: PropTypes.oneOfType([
-            PropTypes.number,
-            PropTypes.string
-        ]).isRequired,
-        webformatURL: PropTypes.string.isRequired,
+    imgModal: PropTypes.shape({
+        largeImageURL: PropTypes.string.isRequired,
         user: PropTypes.string.isRequired
     }).isRequired,
     onClose: PropTypes.func.isRequired,

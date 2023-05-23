@@ -1,10 +1,10 @@
 import css from './ImageGalleryItem.module.css'
 import PropTypes from 'prop-types';
 
-export const ImageGalleryItem = ({item:{id, webformatURL, user}, switchModal}) => {
+export const ImageGalleryItem = ({item:{id, webformatURL, largeImageURL, user}, switchModal}) => {
     return (
 
-        < li className={css.imageGalleryItem} onClick={() => {switchModal(id)}}>
+        < li className={css.imageGalleryItem} onClick={() => {switchModal(largeImageURL, user)}}>
             <img src={webformatURL} alt={user} />
         </li>
 

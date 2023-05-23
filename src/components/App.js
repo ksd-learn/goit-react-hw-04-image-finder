@@ -14,20 +14,19 @@ export const App = () => {
   const [page, setPage] = useState(1);
   const [showLoad, setShowLoad] = useState(false); 
   const [showBtnLoad, setShowBtnLoad] = useState(false)
-  const [idImgModal, setIdImgModal] = useState(0);
+  const [imgModal, setImgModal] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('null');
                                                       
   const addQueryValue = (name) => {
-      if (name !== queryValue) {
-          setqueryValue(name);
-          setError('null');
-          setShowModal(false);
-          setShowBtnLoad(false)
-          setData([]);
-          setPage(1);
-          setShowLoad(true);
-      }
+    if (name === queryValue) return; 
+    setqueryValue(name);
+    setError('null');
+    setShowModal(false);
+    setShowBtnLoad(false)
+    setData([]);
+    setPage(1);
+    setShowLoad(true);
   };
                                                       // действие кнопки "Load more"
   const handlBtnLoadMore = () => {
@@ -36,42 +35,32 @@ export const App = () => {
       setPage((prevState) => prevState + 1)
   };
                                                       // управление модальным окном (откр/закр)
-  const switchModal = (id) => {
-      setIdImgModal(id);
+  const switchModal = (largeImageURL, user) => {
+      setImgModal({largeImageURL, user});
       setShowModal((prevState) => !prevState)
   };
                                                       //действия с запросами
   useEffect(() => {
-      if (queryValue === '') return;
-                                                              // формирование шаблона массива state.data
-                                                              // добавление полученной страницы в state
-      const addImgPage = (dataPage) => {
-          const newDataPage = dataPage.map(item => {
-              return {
-                  id: item.id,
-                  webformatURL: item.webformatURL,
-                  largeImageURL: item.largeImageURL,
-                  user: item.user
-              }
-          });
-          setData((prevstate) => [...prevstate, ...newDataPage])
-      };
-      queryApi(queryValue, page)
-          .then(({ total, hits }) => {
-              if (hits.length > 0) {
-                  addImgPage(hits);
-                  setShowBtnLoad(Math.ceil(total / 12) > page);
-              } else {
-                  return Promise.reject(new Error("Поиск завершен, данных нет!"))
-              }
-              })
-          .catch(error => setError(error))
-          .finally(() => {
-              setShowLoad(false)
-          })
+    if (queryValue === '') return;
+    queryApi(queryValue, page)
+      .then(({ total, hits }) => {
+        if (!hits.length) return Promise.reject(new Error("Поиск завершен, данных нет!"));                                      
+        const newDataPage = hits.map(item => {                // формируем шаблон массива state>data
+            return {
+                id: item.id,
+                webformatURL: item.webformatURL,
+                largeImageURL: item.largeImageURL,
+                user: item.user
+            }
+        });
+        setShowBtnLoad(Math.ceil(total / 12) > page);
+        setData((prevstate) => [...prevstate, ...newDataPage]);
+      })
+      .catch(error => setError(error))
+      .finally(() => {
+        setShowLoad(false)
+      })
   }, [queryValue, page]);
-
-  const dataPhoto = data.find(item => item.id === idImgModal);
 
   return (
     <>
@@ -79,14 +68,14 @@ export const App = () => {
       {data.length > 0 &&
         <ImageGallery data={data} switchModal={switchModal} />
         }      
-      {(error.message === "Поиск завершен, данных нет!") &&
-        <p>"Поиск завершен, данных нет!""</p>}
+      {error &&
+        <p>{error.message}</p>}
       {showBtnLoad && 
         <Button onClick={handlBtnLoadMore} />}
       {showLoad && 
         <Loader />}
       {showModal && 
-        <Modal dataPhoto={dataPhoto} onClose={switchModal} />}
+        <Modal imgModal={imgModal} onClose={switchModal} />}
     </>
   );
 }
