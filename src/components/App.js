@@ -30,15 +30,27 @@ export const App = () => {
   };
                                                       // действие кнопки "Load more"
   const handlBtnLoadMore = () => {
-      setShowLoad(true);
-      setShowBtnLoad(false)
-      setPage((prevState) => prevState + 1)
+    setShowLoad(true);
+    setShowBtnLoad(false);
+    setPage((prevState) => prevState + 1);
+    //autoScrollPage()
   };
                                                       // управление модальным окном (откр/закр)
   const switchModal = (largeImageURL, user) => {
       setImgModal({largeImageURL, user});
       setShowModal((prevState) => !prevState)
   };
+
+  //function autoScrollPage() {
+  //  const ul = document.querySelector('ul');
+  //  const { height: cardHeight } = ul.lastElementChild.getBoundingClientRect();
+  //  console.log('cardHeight', cardHeight);
+  //  window.scrollBy({
+  //    top: cardHeight * 2,
+  //    left: 0,
+  //    behavior: 'smooth'
+  //  });
+  //}
                                                       //действия с запросами
   useEffect(() => {
     if (queryValue === '') return;
